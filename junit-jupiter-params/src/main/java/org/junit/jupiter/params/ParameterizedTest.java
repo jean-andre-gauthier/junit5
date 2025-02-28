@@ -273,6 +273,8 @@ public @interface ParameterizedTest {
 	 */
 	String name() default ParameterizedTestExtension.DEFAULT_DISPLAY_NAME;
 
+	String nameExpr() default ParameterizedTestExtension.DEFAULT_NAME_EXPR;
+
 	/**
 	 * Configure whether all arguments of the parameterized test that implement {@link AutoCloseable}
 	 * will be closed after {@link org.junit.jupiter.api.AfterEach @AfterEach} methods

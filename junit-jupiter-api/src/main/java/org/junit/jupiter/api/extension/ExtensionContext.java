@@ -19,9 +19,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -30,6 +32,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.function.ThrowingConsumer;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.platform.commons.PreconditionViolationException;
+import org.junit.platform.commons.expressionlanguage.ExpressionLanguage;
 import org.junit.platform.commons.support.ReflectionSupport;
 import org.junit.platform.commons.util.Preconditions;
 
@@ -71,6 +74,14 @@ public interface ExtensionContext {
 	 * @return the unique ID of the test or container; never {@code null} or blank
 	 */
 	String getUniqueId();
+
+	default Optional<ExpressionLanguage> getDefaultExpressionLanguage() {
+		Iterator<ExpressionLanguage> elIterator = ServiceLoader.load(ExpressionLanguage.class).iterator();
+		if (elIterator.hasNext()) {
+			return Optional.of(elIterator.next());
+		}
+		return Optional.empty();
+	}
 
 	/**
 	 * Get the display name for the current test or container.

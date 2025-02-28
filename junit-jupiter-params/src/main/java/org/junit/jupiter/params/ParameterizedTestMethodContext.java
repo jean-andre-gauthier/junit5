@@ -31,6 +31,7 @@ import org.junit.jupiter.params.converter.ArgumentConverter;
 import org.junit.jupiter.params.converter.ConvertWith;
 import org.junit.jupiter.params.converter.DefaultArgumentConverter;
 import org.junit.jupiter.params.support.AnnotationConsumerInitializer;
+import org.junit.platform.commons.expressionlanguage.ExpressionLanguage;
 import org.junit.platform.commons.support.AnnotationSupport;
 import org.junit.platform.commons.util.Preconditions;
 import org.junit.platform.commons.util.StringUtils;
@@ -45,14 +46,16 @@ class ParameterizedTestMethodContext {
 
 	final Method method;
 	final ParameterizedTest annotation;
+	final Optional<ExpressionLanguage> expressionLanguage;
 
 	private final Parameter[] parameters;
 	private final Resolver[] resolvers;
 	private final List<ResolverType> resolverTypes;
 
-	ParameterizedTestMethodContext(Method method, ParameterizedTest annotation) {
+	ParameterizedTestMethodContext(Method method, ParameterizedTest annotation, Optional<ExpressionLanguage> expressionLanguage) {
 		this.method = Preconditions.notNull(method, "method must not be null");
 		this.annotation = Preconditions.notNull(annotation, "annotation must not be null");
+		this.expressionLanguage = expressionLanguage;
 		this.parameters = method.getParameters();
 		this.resolvers = new Resolver[this.parameters.length];
 		this.resolverTypes = new ArrayList<>(this.parameters.length);

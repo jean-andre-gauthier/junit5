@@ -39,6 +39,7 @@ class ParameterizedTestExtension implements TestTemplateInvocationContextProvide
 	static final String ARGUMENT_MAX_LENGTH_KEY = "junit.jupiter.params.displayname.argument.maxlength";
 	static final String DEFAULT_DISPLAY_NAME = "{default_display_name}";
 	static final String DISPLAY_NAME_PATTERN_KEY = "junit.jupiter.params.displayname.default";
+	static final String DEFAULT_NAME_EXPR = "";
 
 	@Override
 	public boolean supportsTestTemplate(ExtensionContext context) {
@@ -53,7 +54,7 @@ class ParameterizedTestExtension implements TestTemplateInvocationContextProvide
 		}
 
 		ParameterizedTestMethodContext methodContext = new ParameterizedTestMethodContext(templateMethod,
-			annotation.get());
+			annotation.get(), context.getDefaultExpressionLanguage());
 
 		Preconditions.condition(methodContext.hasPotentiallyValidSignature(),
 			() -> String.format(
