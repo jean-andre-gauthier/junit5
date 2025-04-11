@@ -16,38 +16,22 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.ParameterizedInvocationContextProvider.arguments;
-import static org.junit.jupiter.params.ParameterizedTestExtension.DECLARATION_CONTEXT_KEY;
+import static org.junit.jupiter.params.TestExtensionContext.getExtensionContextReturningSingleMethod;
 
 import java.io.FileNotFoundException;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.junit.jupiter.api.extension.ExecutableInvoker;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.MediaType;
-import org.junit.jupiter.api.extension.TestInstances;
-import org.junit.jupiter.api.function.ThrowingConsumer;
-import org.junit.jupiter.api.parallel.ExecutionMode;
-import org.junit.jupiter.engine.execution.NamespaceAwareStore;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.support.ParameterDeclarations;
 import org.junit.platform.commons.JUnitException;
 import org.junit.platform.commons.PreconditionViolationException;
-import org.junit.platform.commons.util.ReflectionUtils;
-import org.junit.platform.engine.support.store.NamespacedHierarchicalStore;
 
 /**
  * Unit tests for {@link ParameterizedTestExtension}.
@@ -201,146 +185,6 @@ class ParameterizedTestExtensionTests {
 				.hasMessage(String.format("Failed to find constructor for ArgumentsProvider [%s]. "
 						+ "Please ensure that a no-argument or a single constructor exists.",
 					className));
-	}
-
-	private ExtensionContext getExtensionContextReturningSingleMethod(Object testCase) {
-		return getExtensionContextReturningSingleMethod(testCase, ignored -> Optional.empty());
-	}
-
-	private ExtensionContext getExtensionContextReturningSingleMethod(Object testCase,
-			Function<String, Optional<String>> configurationSupplier) {
-
-		Class<?> testClass = testCase.getClass();
-		var method = ReflectionUtils.findMethods(testClass, it -> "method".equals(it.getName())).stream().findFirst();
-
-		return new ExtensionContext() {
-
-			private final NamespacedHierarchicalStore<org.junit.platform.engine.support.store.Namespace> store = new NamespacedHierarchicalStore<>(
-				null);
-
-			@Override
-			public Optional<Method> getTestMethod() {
-				return method;
-			}
-
-			@Override
-			public Optional<ExtensionContext> getParent() {
-				return Optional.empty();
-			}
-
-			@Override
-			public ExtensionContext getRoot() {
-				return this;
-			}
-
-			@Override
-			public String getUniqueId() {
-				return null;
-			}
-
-			@Override
-			public String getDisplayName() {
-				return null;
-			}
-
-			@Override
-			public Set<String> getTags() {
-				return null;
-			}
-
-			@Override
-			public Optional<AnnotatedElement> getElement() {
-				return Optional.empty();
-			}
-
-			@Override
-			public Optional<Class<?>> getTestClass() {
-				return Optional.of(testClass);
-			}
-
-			@Override
-			public List<Class<?>> getEnclosingTestClasses() {
-				return List.of();
-			}
-
-			@Override
-			public Optional<Lifecycle> getTestInstanceLifecycle() {
-				return Optional.empty();
-			}
-
-			@Override
-			public Optional<Object> getTestInstance() {
-				return Optional.empty();
-			}
-
-			@Override
-			public Optional<TestInstances> getTestInstances() {
-				return Optional.empty();
-			}
-
-			@Override
-			public Optional<Throwable> getExecutionException() {
-				return Optional.empty();
-			}
-
-			@Override
-			public Optional<String> getConfigurationParameter(String key) {
-				return configurationSupplier.apply(key);
-			}
-
-			@Override
-			public <T> Optional<T> getConfigurationParameter(String key, Function<String, T> transformer) {
-				return configurationSupplier.apply(key).map(transformer);
-			}
-
-			@Override
-			public void publishReportEntry(Map<String, String> map) {
-			}
-
-			@Override
-			public void publishFile(String fileName, MediaType mediaType, ThrowingConsumer<Path> action) {
-			}
-
-			@Override
-			public void publishDirectory(String name, ThrowingConsumer<Path> action) {
-			}
-
-			@Override
-			public Store getStore(Namespace namespace) {
-				var store = new NamespaceAwareStore(this.store,
-					org.junit.platform.engine.support.store.Namespace.create(namespace.getParts()));
-				method //
-						.map(it -> new ParameterizedTestContext(testClass, it,
-							it.getAnnotation(ParameterizedTest.class))) //
-						.ifPresent(ctx -> store.put(DECLARATION_CONTEXT_KEY, ctx));
-				return store;
-			}
-
-			@Override
-			public Store getStore(StoreScope scope, Namespace namespace) {
-				return getStore(namespace);
-			}
-
-			@Override
-			public ExecutionMode getExecutionMode() {
-				return ExecutionMode.SAME_THREAD;
-			}
-
-			@Override
-			public ExecutableInvoker getExecutableInvoker() {
-				return new ExecutableInvoker() {
-					@Override
-					public Object invoke(Method method, Object target) {
-						return null;
-					}
-
-					@Override
-					public <T> T invoke(Constructor<T> constructor, Object outerInstance) {
-						return ReflectionUtils.newInstance(constructor);
-					}
-				};
-			}
-		};
 	}
 
 	static class TestCaseWithoutMethod {
