@@ -23,7 +23,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -32,8 +34,10 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.function.ThrowingConsumer;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.platform.commons.PreconditionViolationException;
+import org.junit.platform.commons.expression.ExpressionLanguage;
 import org.junit.platform.commons.support.ReflectionSupport;
 import org.junit.platform.commons.util.Preconditions;
+import org.junit.platform.commons.util.ServiceLoaderUtils;
 
 /**
  * {@code ExtensionContext} encapsulates the <em>context</em> in which the
@@ -485,6 +489,23 @@ public interface ExtensionContext {
 	 */
 	@API(status = STABLE, since = "5.11")
 	ExecutableInvoker getExecutableInvoker();
+
+	String DEFAULT_EXPRESSION_LANGUAGE_KEY = "junit.jupiter.expression-language.default";
+
+	@API(status = EXPERIMENTAL, since = "5.13")
+	default Optional<ExpressionLanguage> getDefaultExpressionLanguage() {
+		Optional<String> defaultExpressionLanguageIdOpt = getConfigurationParameter(DEFAULT_EXPRESSION_LANGUAGE_KEY);
+		if (!defaultExpressionLanguageIdOpt.isPresent()) {
+			return Optional.empty();
+		}
+		String defaultExpressionLanguageId = defaultExpressionLanguageIdOpt.get();
+		for (ExpressionLanguage el: ServiceLoader.load(ExpressionLanguage.class)) {
+			if (Objects.equals(defaultExpressionLanguageId, el.getId())) {
+				return Optional.of(el);
+			}
+		}
+		return Optional.empty();
+	}
 
 	/**
 	 * {@code Store} provides methods for extensions to save and retrieve data.
