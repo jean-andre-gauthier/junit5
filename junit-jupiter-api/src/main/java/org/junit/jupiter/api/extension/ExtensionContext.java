@@ -31,13 +31,12 @@ import java.util.function.Function;
 
 import org.apiguardian.api.API;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.extension.expression.ExpressionLanguage;
 import org.junit.jupiter.api.function.ThrowingConsumer;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.platform.commons.PreconditionViolationException;
-import org.junit.platform.commons.expression.ExpressionLanguage;
 import org.junit.platform.commons.support.ReflectionSupport;
 import org.junit.platform.commons.util.Preconditions;
-import org.junit.platform.commons.util.ServiceLoaderUtils;
 
 /**
  * {@code ExtensionContext} encapsulates the <em>context</em> in which the

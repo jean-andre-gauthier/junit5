@@ -1,4 +1,4 @@
-package org.junit.platform.commons.expression;
+package org.junit.jupiter.api.extension.expression;
 
 public interface ExpressionLanguage {
 
