@@ -24,7 +24,7 @@ public class MustacheExpressionLanguage implements ExpressionLanguage {
 
 	MustacheFactory mustacheFactory;
 
-	MustacheExpressionLanguage() {
+	public MustacheExpressionLanguage() {
 		mustacheFactory = new DefaultMustacheFactory();
 	}
 

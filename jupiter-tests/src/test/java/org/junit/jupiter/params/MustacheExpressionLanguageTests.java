@@ -46,7 +46,7 @@ public class MustacheExpressionLanguageTests {
 
 	static class TestCaseTemplateWithoutPlaceholders {
 
-		@ParameterizedTest(name = "foo")
+		@ParameterizedTest(nameExpr = "foo")
 		@ArgumentsSource(FooArgumentsProvider.class)
 		void method() {
 		}
@@ -70,7 +70,7 @@ public class MustacheExpressionLanguageTests {
 
 	static class TestCaseSimplePlaceholder {
 
-		@ParameterizedTest(name = "foo {{bar}}")
+		@ParameterizedTest(nameExpr = "foo {{bar}}")
 		@ArgumentsSource(FooArgumentsProvider.class)
 		void method() {
 		}
@@ -93,7 +93,7 @@ public class MustacheExpressionLanguageTests {
 
 	static class TestCaseInvalidPlaceholder {
 
-		@ParameterizedTest(name = "foo {{barbaz}}")
+		@ParameterizedTest(nameExpr = "foo {{barbaz}}")
 		@ArgumentsSource(FooArgumentsProvider.class)
 		void method() {
 		}
@@ -116,7 +116,7 @@ public class MustacheExpressionLanguageTests {
 
 	static class TestCaseMultiplePlaceholders {
 
-		@ParameterizedTest(name = "foo {{bar}} {{baz}} foo")
+		@ParameterizedTest(nameExpr = "foo {{bar}} {{baz}} foo")
 		@ArgumentsSource(FooArgumentsProvider.class)
 		void method() {
 		}
@@ -139,7 +139,7 @@ public class MustacheExpressionLanguageTests {
 
 	static class TestCaseNestedPlaceholders {
 
-		@ParameterizedTest(name = "{{foo.bar}}: {{foo.baz}}")
+		@ParameterizedTest(nameExpr = "{{foo.bar}}: {{foo.baz}}")
 		@ArgumentsSource(FooArgumentsProvider.class)
 		void method() {
 		}
@@ -162,7 +162,7 @@ public class MustacheExpressionLanguageTests {
 
 	static class TestCasePlaceholderList {
 
-		@ParameterizedTest(name = "{{#foos}}({{bar}}, {{baz}}){{/foos}}")
+		@ParameterizedTest(nameExpr = "{{#foos}}({{bar}}, {{baz}}){{/foos}}")
 		@ArgumentsSource(FooArgumentsProvider.class)
 		void method() {
 		}

@@ -14,9 +14,10 @@ import java.io.IOException;
 
 public interface Expression {
 
-	default void evaluateAndAppend(ExpressionContext context, Appendable appendable) throws IOException {
+	default void evaluateAndAppend(Object context, Appendable appendable) throws IOException {
 		appendable.append(evaluate(context));
 	}
 
-	String evaluate(ExpressionContext context);
+	// TODO: use ExpressionContext here
+	String evaluate(Object context);
 }

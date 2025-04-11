@@ -24,6 +24,7 @@ import java.text.Format;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,12 +32,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.extension.ExtensionConfigurationException;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.platform.commons.JUnitException;
+import org.junit.platform.commons.expression.ExpressionLanguage;
 import org.junit.platform.commons.util.Preconditions;
 import org.junit.platform.commons.util.StringUtils;
 
@@ -68,15 +72,16 @@ class ParameterizedInvocationNameFormatter {
 				.orElse(512);
 
 		return new ParameterizedInvocationNameFormatter(pattern, extensionContext.getDisplayName(), declarationContext,
-			argumentMaxLength);
+			argumentMaxLength, extensionContext::getDefaultExpressionLanguage);
 	}
 
 	private final PartialFormatter[] partialFormatters;
 
 	ParameterizedInvocationNameFormatter(String pattern, String displayName,
-			ParameterizedDeclarationContext<?> declarationContext, int argumentMaxLength) {
+			ParameterizedDeclarationContext<?> declarationContext, int argumentMaxLength,
+			Supplier<Optional<ExpressionLanguage>> expressionLanguage) {
 		try {
-			this.partialFormatters = parse(pattern, displayName, declarationContext, argumentMaxLength);
+			this.partialFormatters = parse(pattern, displayName, declarationContext, argumentMaxLength, expressionLanguage);
 		}
 		catch (Exception ex) {
 			String message = "The display name pattern defined for the parameterized test is invalid. "
@@ -98,7 +103,7 @@ class ParameterizedInvocationNameFormatter {
 
 	private String formatSafely(int invocationIndex, EvaluatedArgumentSet arguments) {
 		ArgumentsContext context = new ArgumentsContext(invocationIndex, arguments.getConsumedNames(),
-			arguments.getName());
+			arguments.getName(), arguments.getAllPayloads());
 		StringBuffer result = new StringBuffer(); // used instead of StringBuilder so MessageFormat can append directly
 		for (PartialFormatter partialFormatter : this.partialFormatters) {
 			partialFormatter.append(context, result);
@@ -107,8 +112,15 @@ class ParameterizedInvocationNameFormatter {
 	}
 
 	private PartialFormatter[] parse(String pattern, String displayName,
-			ParameterizedDeclarationContext<?> declarationContext, int argumentMaxLength) {
+			ParameterizedDeclarationContext<?> declarationContext, int argumentMaxLength, Supplier<Optional<ExpressionLanguage>> expressionLanguage) {
+		if (StringUtils.isBlank(declarationContext.getNameExpr())) {
+			return parseDisplayNamePattern(pattern, displayName, declarationContext, argumentMaxLength);
+		}
+		return parseNameExpr(pattern, declarationContext, expressionLanguage);
+	}
 
+	private PartialFormatter[] parseDisplayNamePattern(String pattern, String displayName,
+			ParameterizedDeclarationContext<?> declarationContext, int argumentMaxLength) {
 		List<PartialFormatter> result = new ArrayList<>();
 		PartialFormatters formatters = createPartialFormatters(displayName, declarationContext, argumentMaxLength);
 		String unparsedSegment = pattern;
@@ -128,6 +140,16 @@ class ParameterizedInvocationNameFormatter {
 		}
 
 		return result.toArray(new PartialFormatter[0]);
+	}
+
+	private PartialFormatter[] parseNameExpr(String fallbackName, ParameterizedDeclarationContext<?> declarationContext, Supplier<Optional<ExpressionLanguage>> expressionLanguageSupplier) {
+		return expressionLanguageSupplier.get()
+				.map(expressionLanguage -> partialFormatterFor((ctx) -> expressionLanguage.parse(declarationContext.getNameExpr()).evaluate(ctx.allArguments[0])))
+				.orElseGet(() -> partialFormatterFor(ctx -> fallbackName));
+	}
+
+	private PartialFormatter[] partialFormatterFor(Function<ArgumentsContext, Object> toParsedName) {
+		return Collections.<PartialFormatter>singletonList((ctx, res) -> res.append(toParsedName.apply(ctx))).toArray(new PartialFormatter[0]);
 	}
 
 	private static PlaceholderPosition findFirstPlaceholder(PartialFormatters formatters, String segment) {
@@ -212,11 +234,13 @@ class ParameterizedInvocationNameFormatter {
 		private final int invocationIndex;
 		private final Object[] consumedArguments;
 		private final Optional<String> argumentSetName;
+		private final Object[] allArguments;
 
-		ArgumentsContext(int invocationIndex, Object[] consumedArguments, Optional<String> argumentSetName) {
+		ArgumentsContext(int invocationIndex, Object[] consumedArguments, Optional<String> argumentSetName, Object[] allArguments) {
 			this.invocationIndex = invocationIndex;
 			this.consumedArguments = consumedArguments;
 			this.argumentSetName = argumentSetName;
+			this.allArguments = allArguments;
 		}
 	}
 
@@ -228,6 +252,12 @@ class ParameterizedInvocationNameFormatter {
 		void append(ArgumentsContext context, StringBuffer result);
 
 	}
+
+	@FunctionalInterface
+	private interface PlaceHolderFormatter extends PartialFormatter {}
+
+	@FunctionalInterface
+	private interface ExpressionLanguageFormatter extends PartialFormatter {}
 
 	private static class ArgumentSetNameFormatter implements PartialFormatter {
 

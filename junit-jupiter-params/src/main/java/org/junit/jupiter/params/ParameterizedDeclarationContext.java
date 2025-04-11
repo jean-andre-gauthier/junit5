@@ -28,6 +28,8 @@ interface ParameterizedDeclarationContext<C> {
 
 	String getDisplayNamePattern();
 
+	String getNameExpr();
+
 	boolean isAutoClosingArguments();
 
 	boolean isAllowingZeroInvocations();

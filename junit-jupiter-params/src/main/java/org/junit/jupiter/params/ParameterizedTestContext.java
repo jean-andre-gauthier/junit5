@@ -57,6 +57,11 @@ class ParameterizedTestContext implements ParameterizedDeclarationContext<TestTe
 	}
 
 	@Override
+	public String getNameExpr() {
+		return this.annotation.nameExpr();
+	}
+
+	@Override
 	public boolean isAutoClosingArguments() {
 		return this.annotation.autoCloseArguments();
 	}

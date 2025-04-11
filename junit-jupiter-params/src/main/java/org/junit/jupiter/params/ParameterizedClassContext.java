@@ -107,6 +107,11 @@ class ParameterizedClassContext implements ParameterizedDeclarationContext<Class
 	}
 
 	@Override
+	public String getNameExpr() {
+		return "";
+	}
+
+	@Override
 	public boolean isAutoClosingArguments() {
 		return this.annotation.autoCloseArguments();
 	}

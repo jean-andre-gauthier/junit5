@@ -36,6 +36,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
@@ -332,13 +333,15 @@ class ParameterizedInvocationNameFormatterTests {
 		ParameterizedDeclarationContext<?> context = mock();
 		when(context.getResolverFacade()).thenReturn(mock());
 		when(context.getAnnotationName()).thenReturn(ParameterizedTest.class.getSimpleName());
-		return new ParameterizedInvocationNameFormatter(pattern, displayName, context, argumentMaxLength);
+		return new ParameterizedInvocationNameFormatter(pattern, displayName, context, argumentMaxLength,
+				Optional::empty);
 	}
 
 	private static ParameterizedInvocationNameFormatter formatter(String pattern, String displayName, Method method) {
 		var context = new ParameterizedTestContext(method.getDeclaringClass(), method,
 			method.getAnnotation(ParameterizedTest.class));
-		return new ParameterizedInvocationNameFormatter(pattern, displayName, context, 512);
+		return new ParameterizedInvocationNameFormatter(pattern, displayName, context, 512,
+				Optional::empty);
 	}
 
 	private static String format(ParameterizedInvocationNameFormatter formatter, int invocationIndex,

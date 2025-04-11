@@ -494,13 +494,13 @@ public interface ExtensionContext {
 	@API(status = EXPERIMENTAL, since = "5.13")
 	default Optional<ExpressionLanguage> getDefaultExpressionLanguage() {
 		Optional<String> defaultExpressionLanguageIdOpt = getConfigurationParameter(DEFAULT_EXPRESSION_LANGUAGE_KEY);
-		if (!defaultExpressionLanguageIdOpt.isPresent()) {
-			return Optional.empty();
-		}
-		String defaultExpressionLanguageId = defaultExpressionLanguageIdOpt.get();
-		for (ExpressionLanguage el : ServiceLoader.load(ExpressionLanguage.class)) {
-			if (Objects.equals(defaultExpressionLanguageId, el.getId())) {
-				return Optional.of(el);
+		for (ExpressionLanguage expressionLanguage : ServiceLoader.load(ExpressionLanguage.class)) {
+			if (!defaultExpressionLanguageIdOpt.isPresent()) {
+				// Return first ExpressionLanguage if no default is set
+				return Optional.of(expressionLanguage);
+			}
+			if (Objects.equals(defaultExpressionLanguageIdOpt.get(), expressionLanguage.getId())) {
+				return Optional.of(expressionLanguage);
 			}
 		}
 		return Optional.empty();
