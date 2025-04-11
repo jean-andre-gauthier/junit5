@@ -25,6 +25,7 @@ dependencies {
 	testImplementation(testFixtures(projects.junitJupiterEngine))
 	testImplementation(testFixtures(projects.junitPlatformLauncher))
 	testImplementation(testFixtures(projects.junitPlatformReporting))
+	testImplementation(libs.mustache)
 }
 
 tasks {
