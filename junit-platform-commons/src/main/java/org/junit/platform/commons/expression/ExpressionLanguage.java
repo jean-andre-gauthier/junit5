@@ -8,15 +8,11 @@
  * https://www.eclipse.org/legal/epl-v20.html
  */
 
-package org.junit.jupiter.api.extension.expression;
+package org.junit.platform.commons.expression;
 
-import java.io.IOException;
+public interface ExpressionLanguage {
 
-public interface Expression {
+	String getId();
 
-	default void evaluateAndAppend(ExpressionContext context, Appendable appendable) throws IOException {
-		appendable.append(evaluate(context));
-	}
-
-	String evaluate(ExpressionContext context);
+	Expression parse(String template);
 }

@@ -8,7 +8,7 @@
  * https://www.eclipse.org/legal/epl-v20.html
  */
 
-package org.junit.jupiter.api.extension.expression;
+package org.junit.platform.commons.expression;
 
 public interface ExpressionContext {
 

@@ -20,6 +20,7 @@ module org.junit.platform.commons {
 
 	exports org.junit.platform.commons;
 	exports org.junit.platform.commons.annotation;
+	exports org.junit.platform.commons.expression;
 	exports org.junit.platform.commons.function;
 	exports org.junit.platform.commons.logging to
 			org.junit.jupiter.api,

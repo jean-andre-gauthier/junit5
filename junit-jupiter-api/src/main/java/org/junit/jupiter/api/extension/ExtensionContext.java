@@ -31,10 +31,10 @@ import java.util.function.Function;
 
 import org.apiguardian.api.API;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.junit.jupiter.api.extension.expression.ExpressionLanguage;
 import org.junit.jupiter.api.function.ThrowingConsumer;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.platform.commons.PreconditionViolationException;
+import org.junit.platform.commons.expression.ExpressionLanguage;
 import org.junit.platform.commons.support.ReflectionSupport;
 import org.junit.platform.commons.util.Preconditions;
 
@@ -498,7 +498,7 @@ public interface ExtensionContext {
 			return Optional.empty();
 		}
 		String defaultExpressionLanguageId = defaultExpressionLanguageIdOpt.get();
-		for (ExpressionLanguage el: ServiceLoader.load(ExpressionLanguage.class)) {
+		for (ExpressionLanguage el : ServiceLoader.load(ExpressionLanguage.class)) {
 			if (Objects.equals(defaultExpressionLanguageId, el.getId())) {
 				return Optional.of(el);
 			}
